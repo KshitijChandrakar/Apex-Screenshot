@@ -1,14 +1,19 @@
+
+Selects Values from Inventory
 ```SQL
-alpha
+Insert into Inventory Values(12, 'CHOCOLATES')
 ```
-[!](SS16.jpg)
-[!](SS14.jpg)
+![](SS8.jpg)
 
-asdafa
 
 
 ```SQL
-Beta
+select
+ QUANTITY,
+ ITEM_NAME
+ from INVENTORY
 ```
-[!](SS17.jpg)
-```
+![](SS9.jpg)
+
+
+a
