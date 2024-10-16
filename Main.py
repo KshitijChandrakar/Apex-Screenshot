@@ -1,32 +1,33 @@
 
+from Filenames import *
+import threading
+import time
+from pynput import keyboard, mouse
+from PIL import ImageGrab
+import ctypes
+import os
 TotalPositions = 4
 Positions = []
 hotkeyShortcut = '<ctrl>+<shift>+z'
-Full_Path ="D:\My project\Apex Screenshot\test.md"
+Full_Path = "D:\My project\Apex Screenshot\test.md"
 GlobalTimeout = 1000
 
-#---------------------------------------------------------
+# ---------------------------------------------------------
 
-import os
-import ctypes
 user32 = ctypes.windll.user32
 dpi_scale = user32.GetDpiForWindow(user32.GetForegroundWindow()) / 96
 
 
-from PIL import ImageGrab
-from pynput import keyboard, mouse
-import time
-import threading
-from Filenames import *
-
-#---------------------------------------------------------
+# ---------------------------------------------------------
 # Initialize the controllers and the Keys
 
 MouseCon = mouse.Controller()
 keyboardController = keyboard.Controller()
 Key = keyboard.Key
 
-#---------------------------------------------------------
+# ---------------------------------------------------------
+
+
 def Set_Path(path):
     global Path
     global Filename
@@ -38,10 +39,13 @@ def Set_Path(path):
         print(f"Error: {e}")
 
     pass
-#---------------------------------------------------------
+# ---------------------------------------------------------
 # This Gets us a List of 3 Positions
-def getPositions(N = GlobalTimeout): # Number of secondns to timeout
+
+
+def getPositions(N=GlobalTimeout):  # Number of secondns to timeout
     print("Move mouse to your position, and press", hotkeyShortcut)
+
     def GetMousePos():
         pos = MouseCon.position
         print(pos, "Postion", len(Positions), "Selected")
@@ -51,8 +55,8 @@ def getPositions(N = GlobalTimeout): # Number of secondns to timeout
         return False
     # Collect events until released
     listener = keyboard.GlobalHotKeys({
-            hotkeyShortcut: GetMousePos
-            })
+        hotkeyShortcut: GetMousePos
+    })
     listener.start()
     n = 0
     while True:
@@ -61,17 +65,19 @@ def getPositions(N = GlobalTimeout): # Number of secondns to timeout
             break
         else:
             if n < N:
-                n+=1
+                n += 1
                 time.sleep(0.1)
             else:
                 print("Timed Out, Exiting Program...")
                 listener.stop()
                 listener.join(1)
-                exit(2) # Exit on Timeout
+                exit(2)  # Exit on Timeout
     listener.join(2)
 
-#---------------------------------------------------------
-#This Goes to the selected location, selects everytthing, presses backspace and types whatever you pass to it
+# ---------------------------------------------------------
+# This Goes to the selected location, selects everytthing, presses backspace and types whatever you pass to it
+
+
 def KeyType(Letters):
     def keyboardClick(key):
         if type(key) == "<class 'str'>":
@@ -92,18 +98,22 @@ def KeyType(Letters):
     keyboardController.type(Letters)
     time.sleep(2)
 
-#---------------------------------------------------------
-#Image Saver with filenames, i dont know why the Positioning wont work correctly
+# ---------------------------------------------------------
+# Image Saver with filenames, i dont know why the Positioning wont work correctly
 
 # Get the scaling factor of the primary monitor
 # print(dpi_scale)
+
+
 def DefineBBox():
     global bbox
-    bbox = [min(Positions[2][0],Positions[3][0]),
-            min(Positions[2][1],Positions[3][1]),
-            max(Positions[2][0],Positions[3][0]),
-            max(Positions[2][1],Positions[3][1])]
+    bbox = [min(Positions[2][0], Positions[3][0]),
+            min(Positions[2][1], Positions[3][1]),
+            max(Positions[2][0], Positions[3][0]),
+            max(Positions[2][1], Positions[3][1])]
     bbox = tuple(int(coordinate * dpi_scale) for coordinate in bbox)
+
+
 def GetImage():
     # ssImg = ImageGrab.grab()
     # print(Positions[1] + Positions[2])
@@ -113,9 +123,10 @@ def GetImage():
     filename = generateFilename("SS.jpg")
     ssImg.save(filename)
     return filename
-    #str(int(time.time())) +
+    # str(int(time.time())) +
 
-def ImageChanged(timeout = 10):
+
+def ImageChanged(timeout=10):
     PrevImage = 0
     ssImg = ImageGrab.grab(bbox)
     changedAmt = 0
@@ -132,11 +143,14 @@ def ImageChanged(timeout = 10):
             changedAmt += 1
     print(f"Timed Out While Getting the Results, at {timeout} seconds")
     return False
-    #str(int(time.time())) +
+    # str(int(time.time())) +
 
-#---------------------------------------------------------
+
+# ---------------------------------------------------------
 Commands = []
 lineNos = []
+
+
 def interpretMarkdown():
     global Commands
     global lineNos
@@ -147,7 +161,7 @@ def interpretMarkdown():
         for l in range(len(lines)):
             if not Found:
                 lines[l] = lines[l].strip()
-                if '```SQL' ==  lines[l].strip():
+                if '```SQL' == lines[l].strip():
                     Found = True
                     # print("Found at", l + 1)
                     continue
@@ -163,11 +177,15 @@ def interpretMarkdown():
                     CurrentCommand = ""
                     continue
 
-#---------------------------------------------------------
+# ---------------------------------------------------------
+
+
 def PressRun():
     MouseCon.position = Positions[1]
-    MouseCon.click(mouse.Button.left,1)
-#---------------------------------------------------------
+    MouseCon.click(mouse.Button.left, 1)
+# ---------------------------------------------------------
+
+
 def write_to_line(Filename, line_num, new_content):
     # Read the file content into a list
     with open(Filename, 'r') as file:
@@ -187,7 +205,9 @@ def write_to_line(Filename, line_num, new_content):
     # Write the updated content back to the file
     with open(Filename, 'w') as file:
         file.writelines(lines)
-#---------------------------------------------------------
+
+
+# ---------------------------------------------------------
 # def CollectCommands():
 Path, Filename =
 interpretMarkdown()
